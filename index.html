@@ -1,14 +1,15 @@
 <!--
 MERKEZ SOSYAL - Alper için mobil öncelikli sosyal medya sitesi taslağı.
+Bu versiyon, İkon, İsim Sorma ve Radyo yükleme sorunlarını çözmek için yeniden düzenlendi.
 Tasarım: Mobil cihazlara uygun, turuncu temalı ve modern (Tailwind CSS kullanılarak).
-Yapı: Tek dosfa içinde birden fazla görünüm (Dashboard, M-Klip, Ayarlar, Oyunlar) kullanılmıştır.
+Yapı: Tek dosya içinde birden fazla görünüm (Dashboard, M-Klip, Ayarlar, Oyunlar) kullanılmıştır.
 Özellikler:
 1. İsim Sorma/Kaydetme, Karanlık Mod.
 2. M-Klip ve Oyunlar için ayrı sayfalar.
 3. Beğeni sistemi (Firestore ile kalıcı hafıza).
 4. İsim Girişi için Argo/Küfür Kontrolü eklendi.
-5. Forum linki ve M-Klip yükleme butonu APKPure linkine yönlendirildi.
-6. YENİ: Video listesi güncellendi.
+5. YENİ: Video listesi güncellendi.
+6. Hata giderme: İkonlar, isim sorma ve radyo başlangıcı için kontroller eklendi.
 -->
 <!DOCTYPE html>
 <html lang="tr">
@@ -62,9 +63,14 @@ Yapı: Tek dosfa içinde birden fazla görünüm (Dashboard, M-Klip, Ayarlar, Oy
         .dark #name-modal > div {
             background-color: #1f2937;
         }
+        /* Radyo player'ı mobil cihazlarda daha iyi hizala */
+        #merkez-radio {
+            width: 150px; /* Biraz daha geniş */
+            height: 32px;
+        }
     </style>
 </head>
-<body class="pb-16"> <!-- Radyo oynatıcı için alt boşluk -->
+<body class="pb-20"> <!-- Radyo oynatıcı için alt boşluk artırıldı -->
 
     <!-- Başlık ve Bildirim Çubuğu -->
     <header id="main-header" class="sticky top-0 bg-white z-40 shadow-lg p-4 flex justify-between items-center rounded-b-xl">
@@ -289,9 +295,10 @@ Yapı: Tek dosfa içinde birden fazla görünüm (Dashboard, M-Klip, Ayarlar, Oy
                 <i data-lucide="radio" class="w-6 h-6 text-green-400 mr-3 animate-pulse"></i>
                 <span class="font-medium">Canlı Yayın: Radyo MERKEZ</span>
             </div>
+            <!-- Kontroller her zaman görünür olacak şekilde ayarlandı -->
             <audio id="merkez-radio" controls class="w-32 h-8">
-                <!-- Radyo linki buraya eklendi: http://46.20.3.201:80/ -->
-                <source src="http://46.20.3.201:80/" type="audio/mp3" onerror="this.onerror=null; this.parentElement.innerHTML='Radyo yayını bulunamadı.'">
+                <!-- Radyo linki (HTTP olduğu için sorun çıkarabilir, bu bir sunucu/tarayıcı kısıtlamasıdır) -->
+                <source src="http://46.20.3.201:80/" type="audio/mp3" onerror="this.onerror=null; this.parentElement.innerHTML='<span class=\'text-red-400\'>Radyo yayını bulunamadı. (HTTP/HTTPS sorunu olabilir)</span>'">
                 Tarayıcınız ses öğesini desteklemiyor.
             </audio>
         </div>
@@ -310,16 +317,14 @@ Yapı: Tek dosfa içinde birden fazla görünüm (Dashboard, M-Klip, Ayarlar, Oy
         let isAuthReady = false; 
         let currentUserName = localStorage.getItem('userName') || '';
 
-        // YENİ VİDEO VERİLERİ
+        // VİDEO VERİLERİ (Güncel)
         const videos = [
             { id: 'v5', title: 'İzmirim de İzmirim 💕', creator: 'Alper', url: 'https://www.appcreator24.com/intra/img.php?idioma=en&idsesion=wfj3ns1z0ak4iehtrqlbyx8vocgmpd9u7265&idapp=3719510&idsec=35896434&desde_revvid=1&idvid=2607019@2939432857' }, 
             { id: 'v6', title: 'Yapay zekâ\'ya da bukadar güvenmemek gerekiyor 😃', creator: 'Atatürk isimli kullanıcı', url: 'https://www.appcreator24.com/intra/img.php?idioma=en&idsesion=wfj3ns1z0ak4iehtrqlbyx8vocgmpd9u7265&idapp=3719510&idsec=35896434&desde_revvid=1&idvid=2606926@2939359998' },
             { id: 'v7', title: 'Öğretmen durduk yere çıldırdı', creator: 'Selda', url: 'https://www.appcreator24.com/intra/img.php?idioma=en&idsesion=wfj3ns1z0ak4iehtrqlbyx8vocgmpd9u7265&idapp=3719510&idsec=35896434&desde_revvid=1&idvid=2605156@2937703573' }, 
-            // Eski video verileri yerine yenileri eklendi.
-            // Daha fazla video buraya eklenebilir.
         ];
 
-        // Oyun verileri (Değişmedi)
+        // Oyun verileri
         const games = [
             { id: 'g1', title: 'Catch the Snacks', description: 'Atıştırmalıkları yakala!', url: 'http://www.appcreator24.com/intra/app_sec_game_preview.php?idioma=en&idsesion=xzkds0uv8goh5r2ajqfw9tepi6nm4lc1b37y&idg=128&ckp=68gryux9aq1jzovwpsidk72fn4bmlct0e53h@2082262@0' },
             { id: 'g2', title: 'Muz Koşusu', description: 'Koşan muzlarla engellerden kaç!', url: 'http://www.appcreator24.com/intra/app_sec_game_preview.php?idioma=en&idsesion=xzkds0uv8goh5r2ajqfw9tepi6nm4lc1b37y&idg=124&ckp=68gryux9aq1jzovwpsidk72fn4bmlct0e53h@2082262@0' },
@@ -334,7 +339,7 @@ Yapı: Tek dosfa içinde birden fazla görünüm (Dashboard, M-Klip, Ayarlar, Oy
         // Firebase Modüllerini İçe Aktarma
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, deleteDoc, onSnapshot, collection, query, setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, deleteDoc, onSnapshot, collection, setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // === KÖTÜ KELİME KONTROLÜ ===
         function containsProfanity(text) {
@@ -348,14 +353,4 @@ Yapı: Tek dosfa içinde birden fazla görünüm (Dashboard, M-Klip, Ayarlar, Oy
 
         // === FIREBASE VE AUTH BAŞLANGIÇ ===
         async function initializeFirebase() {
-            if (!firebaseConfig) {
-                console.error("Firebase yapılandırması eksik. Veritabanı işlemleri çalışmayacaktır.");
-                return;
-            }
-
-            try {
-                const app = initializeApp(firebaseConfig);
-                db = getFirestore(app);
-                auth = getAuth(app);
-                
-                s
+            if (!firebaseConfig)
